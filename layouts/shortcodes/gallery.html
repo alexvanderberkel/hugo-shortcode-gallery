@@ -102,7 +102,7 @@ Ordinal: {{ .Ordinal}}
 			{{ end }}
 
 			{{/* If the image has exif informations, those are merged together with the metadata from the file */}}
-			{{ if in "jpg jpeg tiff" $original.MediaType.SubType }}
+			{{ if in "avif jpg jpeg tiff webp" $original.MediaType.SubType }}
 				{{ with $original.Exif }}
 					{{ $metadata = merge .Tags $metadata }}
 				{{ end }}
@@ -323,6 +323,7 @@ Ordinal: {{ .Ordinal}}
 			const filterBar = $("<div class='justified-gallery-filterbar'/>");
 			gallery.before(filterBar);
 
+			// var wrapper = document.getElementById("{{ $galleryWrapperId }}");
 			var wrapper = document.getElementById("{{ $galleryWrapperId }}");
 
 			// inline svg icons
@@ -349,7 +350,7 @@ Ordinal: {{ .Ordinal}}
 			const fullTabButton = $("<button/>");
 			fullTabButton.html(expandIcon);
 			fullTabButton.click(() => setFulltab(!wrapper.classList.contains("fulltab")));
-			filterBar.append(fullTabButton);
+			// filterBar.append(fullTabButton);
 			$(document).keyup(e => {
 				// when ESC is pressed
 				if (e.keyCode === 27){
