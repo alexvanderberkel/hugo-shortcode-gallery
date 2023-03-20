@@ -117,13 +117,8 @@ Ordinal: {{ .Ordinal}}
 				{{ $metadata = dict }}
 			{{ end }}
 
-
 			{{/* If the image has exif informations, those are merged together with the metadata from the file */}}
 			{{ if in "avif jpg jpeg tiff webp" $original.MediaType.SubType }}
-
-			{{/* If the image has EXIF informations, those are merged together with the metadata from the file */}}
-
-
 				{{ with $original.Exif }}
 					{{ $metadata = merge .Tags $metadata }}
 				{{ end }}
@@ -254,11 +249,134 @@ Ordinal: {{ .Ordinal}}
 					});
 				{{ end }}
 
-				swipeboxInstance = $('.galleryImg').swipebox(
-					$.extend({},
-						{ {{ $swipeboxParameters | safeJS }} }
-					)
-				);
+			swipeboxInstance = $('.galleryImg').swipebox(
+				jQuery.extend({},
+					{ {{ $justifiedGalleryParameters | safeJS }} }
+				)
+			);
+		});
+
+		// initialize the justified gallery
+		gallery.justifiedGallery({
+			rowHeight : {{ $rowHeight }},
+			margins : {{ $margins }},
+			border : 0,
+			randomize : {{ $randomize }},
+			waitThumbnailsLoad : false,
+			lastRow : {{ $lastRowJustification }},
+			captions : false,
+			// if there is at least one filter option
+			{{ if not (eq $filterOptions "[]") }}
+				// we first show no images at all
+				// till the code way below selects a filter and applies it 
+				// this prevent creating the layout twice
+				filter : () => false
+			{{ end }}
+		});
+
+		// only include JS code for filter options if there at least one filter option
+		{{ if not (eq $filterOptions "[]") }}
+
+			// this function can be used to create a function that can be used by justifiedGallery
+			// for filtering images by their metadata
+			function createMetadataFilter(filterFunction) {
+				return (entry, index, array) => {
+					let meta = $(entry).find("a").attr("data-meta");
+					meta = meta ? JSON.parse(meta) : {};
+					
+					let include = filterFunction(meta);
+
+					// only those images visible in justified gallery should be displayed
+					// in swipebox (only <a> with class galleryImg are displayed in swipebox)
+					$(entry).find("a").toggleClass("galleryImg", include);
+
+					return include;
+				}
+			}
+
+			// this function returns a function that can be used by justifiedGallery
+			// for filtering images by their tags
+			function createTagFilter(tagsRegexString) {
+				const tagsRegex = RegExp(tagsRegexString);
+				return createMetadataFilter(meta => {
+					let tags = meta.Tags;
+					tags = tags ? tags : [];
+					return tags.some(tag => tagsRegex.test(tag));
+				});
+			};
+
+			// this function returns a function that can be used by justifiedGallery
+			// for filtering images by their description
+			function createImageDescriptionFilter(descriptionRegexString) {
+				const descriptionRegex = RegExp(descriptionRegexString);
+				return createMetadataFilter(meta => {
+					let imageDescription = meta.ImageDescription;
+					return imageDescription !== null && descriptionRegex.test(imageDescription);
+				});
+			};
+
+			// this function returns a function that can be used by justifiedGallery
+			// for filtering images by their star rating
+			function createRatingFilter(min, max) {
+				return createMetadataFilter(meta => {
+					let rating = meta.Rating;
+					if(rating === null){
+						rating = -1;
+					}
+					return rating >= min && rating <= max;
+				});
+			};
+
+			// this function returns a function that can be used by justifiedGallery
+			// for filtering images by their color labels
+			function createColorLabelFilter(color) {
+				color = color.charAt(0).toLowerCase()
+				return createMetadataFilter(meta => {
+					let colors = meta.ColorLabels;
+					return colors && colors.includes(color);
+				});
+			};
+
+			
+			const filterOptions = {{ $filterOptions | safeJS }};
+			
+			// insert a div for inserting filter buttons before the gallery
+			const filterBar = $("<div class='justified-gallery-filterbar'/>");
+			gallery.before(filterBar);
+
+			// var wrapper = document.getElementById("{{ $galleryWrapperId }}");
+			var wrapper = document.getElementById("{{ $galleryWrapperId }}");
+
+			// inline svg icons
+			const expandIcon = '{{ (resources.Get "shortcode-gallery/font-awesome/expand-alt-solid.svg").Content | safeHTML }}';
+			const compressIcon = '{{ (resources.Get "shortcode-gallery/font-awesome/compress-alt-solid.svg").Content | safeHTML }}';
+
+			function setFulltab(activate) {
+				if(activate == wrapper.classList.contains("fulltab")){
+					return;  // nothing to do, we are already in the right state
+				}
+
+				wrapper.classList.toggle("fulltab");
+				gallery.justifiedGallery({
+					rowHeight : {{ $rowHeight }} * (activate ? 1.5 : 1.0),
+					lastRow: (activate ? "nojustify": {{ $lastRowJustification }}),
+					// force justifiedGallery to refresh
+					refreshTime: 0,
+				});
+				// force justifiedGallery to refresh
+				gallery.data('jg.controller').startImgAnalyzer();
+				fullTabButton.html(wrapper.classList.contains("fulltab") ? compressIcon : expandIcon)
+			};
+
+			const fullTabButton = $("<button/>");
+			fullTabButton.html(expandIcon);
+			fullTabButton.click(() => setFulltab(!wrapper.classList.contains("fulltab")));
+			// filterBar.append(fullTabButton);
+			$(document).keyup(e => {
+				// when ESC is pressed
+				if (e.keyCode === 27){
+					setFulltab(false);
+				}
 			});
 
 			// initialize the justified gallery
