@@ -327,8 +327,8 @@ Ordinal: {{ .Ordinal}}
 			var wrapper = document.getElementById("{{ $galleryWrapperId }}");
 
 			// inline svg icons
-			// const expandIcon = '{{ (resources.Get "shortcode-gallery/font-awesome/expand-alt-solid.svg").Content | safeHTML }}';
-			// const compressIcon = '{{ (resources.Get "shortcode-gallery/font-awesome/compress-alt-solid.svg").Content | safeHTML }}';
+			const expandIcon = '{{ (resources.Get "shortcode-gallery/font-awesome/expand-alt-solid.svg").Content | safeHTML }}';
+			const compressIcon = '{{ (resources.Get "shortcode-gallery/font-awesome/compress-alt-solid.svg").Content | safeHTML }}';
 
 			function setFulltab(activate) {
 				if(activate == wrapper.classList.contains("fulltab")){
