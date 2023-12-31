@@ -327,8 +327,8 @@ Ordinal: {{ .Ordinal}}
 			var wrapper = document.getElementById("{{ $galleryWrapperId }}");
 
 			// inline svg icons
-			const expandIcon = '{{ (resources.Get "shortcode-gallery/font-awesome/expand-alt-solid.svg").Content | safeHTML }}';
-			const compressIcon = '{{ (resources.Get "shortcode-gallery/font-awesome/compress-alt-solid.svg").Content | safeHTML }}';
+			// const expandIcon = '{{ (resources.Get "shortcode-gallery/font-awesome/expand-alt-solid.svg").Content | safeHTML }}';
+			// const compressIcon = '{{ (resources.Get "shortcode-gallery/font-awesome/compress-alt-solid.svg").Content | safeHTML }}';
 
 			function setFulltab(activate) {
 				if(activate == wrapper.classList.contains("fulltab")){
@@ -344,11 +344,11 @@ Ordinal: {{ .Ordinal}}
 				});
 				// force justifiedGallery to refresh
 				gallery.data('jg.controller').startImgAnalyzer();
-				fullTabButton.html(wrapper.classList.contains("fulltab") ? compressIcon : expandIcon)
+				// fullTabButton.html(wrapper.classList.contains("fulltab") ? compressIcon : expandIcon)
 			};
 
 			const fullTabButton = $("<button/>");
-			fullTabButton.html(expandIcon);
+			// fullTabButton.html(expandIcon);
 			fullTabButton.click(() => setFulltab(!wrapper.classList.contains("fulltab")));
 			// filterBar.append(fullTabButton);
 			$(document).keyup(e => {
