@@ -117,13 +117,13 @@ Ordinal: {{ .Ordinal}}
 				{{ $metadata = dict }}
 			{{ end }}
 
-<<<<<<< HEAD
+
 			{{/* If the image has exif informations, those are merged together with the metadata from the file */}}
 			{{ if in "avif jpg jpeg tiff webp" $original.MediaType.SubType }}
-=======
+
 			{{/* If the image has EXIF informations, those are merged together with the metadata from the file */}}
-			{{ if in "jpg jpeg tiff" $original.MediaType.SubType }}
->>>>>>> 077b41e (Replace custom handling of EXIF orientation (#22) with Hugo's new AutoOrient filter.)
+
+
 				{{ with $original.Exif }}
 					{{ $metadata = merge .Tags $metadata }}
 				{{ end }}
